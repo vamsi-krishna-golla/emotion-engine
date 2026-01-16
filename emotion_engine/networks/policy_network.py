@@ -17,7 +17,7 @@ class PolicyNetwork(nn.Module):
     For continuous action spaces, outputs mean and log_std.
     """
 
-    def__init__(
+    def __init__(
         self,
         emotion_features_dim: int = 256,
         emotion_state_dim: int = 16,

@@ -178,7 +178,7 @@ class EmpathyAttention(nn.Module):
         batch_size, num_agents, _ = other_emotions.shape
 
         # Encode emotions
-        self_encoded = self_encoder(self_emotion)  # (batch, hidden)
+        self_encoded = self.self_encoder(self_emotion)  # (batch, hidden)
         other_encoded = self.other_encoder(other_emotions)  # (batch, agents, hidden)
 
         # Expand self_encoded for concatenation

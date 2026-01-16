@@ -9,6 +9,5 @@ __version__ = "0.1.0"
 __author__ = "Emotion Engine Team"
 
 from emotion_engine.core.emotion_state import EmotionState
-from emotion_engine.rl.agent import EmotionalAgent
 
-__all__ = ["EmotionState", "EmotionalAgent"]
+__all__ = ["EmotionState"]

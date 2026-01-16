@@ -1,0 +1,12 @@
+============================================================
+EMOTION ENGINE - Component Tests
+============================================================
+
+============================================================
+Testing EmotionState
+============================================================
+Created baseline state: EmotionState(dominant_primitive=attachment(0.10), dominant_complex=maternal_love(0.00), valence=0.08, arousal=0.10)
+After update: EmotionState(dominant_primitive=attachment(0.60), dominant_complex=maternal_love(0.00), valence=0.45, arousal=0.14)
+Dominant primitive emotion: attachment (0.60)
+Vector representation shape: (16,), dtype: float32
+Maternal love (rule-based): 0.35
