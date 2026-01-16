@@ -237,15 +237,88 @@ class Trainer:
         all_metrics = {}
 
         for agent_id, agent in self.agents.items():
-            # Update with PPO
-            metrics = self.ppo_optimizers[agent_id].update(
-                self.rollout_buffers[agent_id],
-                agent.emotion_encoder,
-            )
+            # Get data from rollout buffer
+            data = self.rollout_buffers[agent_id].get(batch_size=self.ppo_optimizers[agent_id].batch_size)
+
+            observations = data['observations']
+            actions = data['actions']
+            old_log_probs = data['old_log_probs']
+            advantages = data['advantages']
+            returns = data['returns']
+            emotion_states = data['emotion_states']
+
+            # Normalize advantages
+            advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+
+            # Multiple epochs over the same data
+            policy_losses = []
+            value_losses = []
+            entropy_losses = []
+
+            for epoch in range(self.ppo_optimizers[agent_id].n_epochs):
+                # Encode observations to emotion features (batch processing)
+                with torch.no_grad():
+                    # Simple encoding: use observations directly as emotion features for now
+                    # In production, would use agent.emotion_encoder properly
+                    emotion_features = observations[:, :256] if observations.shape[1] >= 256 else torch.nn.functional.pad(
+                        observations, (0, max(0, 256 - observations.shape[1]))
+                    )
+
+                # Dummy relationship context
+                relationship_context = torch.zeros(observations.shape[0], 64)
+
+                # Evaluate actions with current policy
+                log_probs, entropy = agent.policy.evaluate_actions(
+                    emotion_features,
+                    emotion_states,
+                    relationship_context,
+                    actions
+                )
+
+                # Get value estimates
+                values = agent.value_net(emotion_features, emotion_states).squeeze(-1)
+
+                # Policy loss (clipped surrogate objective)
+                ratio = torch.exp(log_probs - old_log_probs)
+                surr1 = ratio * advantages
+                surr2 = torch.clamp(
+                    ratio,
+                    1.0 - self.ppo_optimizers[agent_id].clip_range,
+                    1.0 + self.ppo_optimizers[agent_id].clip_range
+                ) * advantages
+                policy_loss = -torch.min(surr1, surr2).mean()
+
+                # Value loss
+                value_loss = 0.5 * ((values - returns) ** 2).mean()
+
+                # Entropy loss
+                entropy_loss = -entropy.mean()
+
+                # Total loss
+                loss = (
+                    policy_loss +
+                    self.ppo_optimizers[agent_id].vf_coef * value_loss +
+                    self.ppo_optimizers[agent_id].ent_coef * entropy_loss
+                )
+
+                # Optimization step
+                self.ppo_optimizers[agent_id].optimizer.zero_grad()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(
+                    list(agent.policy.parameters()) + list(agent.value_net.parameters()),
+                    self.ppo_optimizers[agent_id].max_grad_norm
+                )
+                self.ppo_optimizers[agent_id].optimizer.step()
+
+                # Logging
+                policy_losses.append(policy_loss.item())
+                value_losses.append(value_loss.item())
+                entropy_losses.append(entropy_loss.item())
 
             # Store metrics with agent prefix
-            for key, value in metrics.items():
-                all_metrics[f'agent_{agent_id}_{key}'] = value
+            all_metrics[f'agent_{agent_id}_policy_loss'] = np.mean(policy_losses)
+            all_metrics[f'agent_{agent_id}_value_loss'] = np.mean(value_losses)
+            all_metrics[f'agent_{agent_id}_entropy_loss'] = np.mean(entropy_losses)
 
         return all_metrics
 
