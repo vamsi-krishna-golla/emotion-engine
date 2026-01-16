@@ -1,7 +1,11 @@
 """Training infrastructure."""
 
-# Import training components when they are implemented
-# from emotion_engine.training.trainer import Trainer
-# from emotion_engine.training.curriculum import CurriculumScheduler
+from emotion_engine.training.trainer import Trainer
+from emotion_engine.training.curriculum import CurriculumScheduler, CurriculumStage, create_simple_curriculum
 
-__all__ = []
+__all__ = [
+    "Trainer",
+    "CurriculumScheduler",
+    "CurriculumStage",
+    "create_simple_curriculum",
+]
