@@ -26,6 +26,10 @@ seaborn>=0.13.0
 plotly>=5.18.0
 networkx>=3.2
 
+# Web Demo
+gradio>=4.0.0
+pillow>=10.0.0
+
 # Utilities
 tqdm>=4.66.0
 rich>=13.7.0

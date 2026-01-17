@@ -67,7 +67,22 @@ pip install -e .
 pip install -r requirements.txt
 ```
 
-### Quick Demo (5K Steps)
+### Interactive Web Demo (Recommended!)
+
+```bash
+# Launch interactive web interface
+python web_demo.py
+```
+
+This opens a web interface where you can:
+- Watch agents interact in real-time
+- Control scenario parameters
+- See emotion development visualized
+- Share with a public link!
+
+Perfect for demonstrations and sharing with others. See [WEB_DEMO_README.md](WEB_DEMO_README.md) for details.
+
+### Quick Training Demo (5K Steps)
 
 ```bash
 # Run a quick 5K step training demo (~30 seconds)
