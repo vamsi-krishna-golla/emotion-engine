@@ -1,0 +1,13 @@
+# Git LFS configuration for large model checkpoints
+
+# Track PyTorch checkpoint files with Git LFS
+demo_checkpoints/*.pt filter=lfs diff=lfs merge=lfs -text
+demo_checkpoints/*.pth filter=lfs diff=lfs merge=lfs -text
+checkpoints/*.pt filter=lfs diff=lfs merge=lfs -text
+checkpoints/*.pth filter=lfs diff=lfs merge=lfs -text
+quick_checkpoints/*.pt filter=lfs diff=lfs merge=lfs -text
+
+# Track other large binary files
+*.pkl filter=lfs diff=lfs merge=lfs -text
+*.pickle filter=lfs diff=lfs merge=lfs -text
+*.npz filter=lfs diff=lfs merge=lfs -text
